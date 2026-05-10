@@ -43,8 +43,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          brew style --cask Casks/aegis.rb
-          brew audit --cask Casks/aegis.rb
+          tap_root="$(brew --repository)/Library/Taps/mithran/homebrew-tap"
+          mkdir -p "$(dirname "$tap_root")"
+          rm -rf "$tap_root"
+          ln -s "$GITHUB_WORKSPACE" "$tap_root"
+          brew style --cask "$tap_root/Casks/aegis.rb"
+          brew audit --cask "$tap_root/Casks/aegis.rb"
 
       - name: Commit cask update
         shell: bash

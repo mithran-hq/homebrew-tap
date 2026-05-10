@@ -60,21 +60,19 @@ def render_cask(version: str, checksums: dict[str, str]) -> str:
   url "https://github.com/mithran-hq/aegis-code/releases/download/rust-v#{{version}}/aegis-#{{arch}}.tar.gz",
       verified: "github.com/mithran-hq/aegis-code/"
   name "Aegis Code"
-  desc "Aegis-controlled coding agent harness derived from Codex"
+  desc "Controlled coding agent harness derived from Codex"
   homepage "https://github.com/mithran-hq/aegis-code"
-
-  depends_on macos: ">= :monterey"
-
-  binary "aegis-#{{arch}}", target: "aegis"
 
   livecheck do
     url "https://github.com/mithran-hq/aegis-code/releases/latest"
     regex(/^rust-v(\\d+(?:\\.\\d+)+(?:-(?:alpha|beta)(?:\\.\\d+)?)?)$/i)
   end
 
-  zap trash: [
-    "~/.aegis/log",
-  ]
+  depends_on macos: ">= :monterey"
+
+  binary "aegis-#{{arch}}", target: "aegis"
+
+  zap trash: "~/.aegis/log"
 
   caveats <<~EOS
     Aegis Code stores configuration and session data under ~/.aegis.

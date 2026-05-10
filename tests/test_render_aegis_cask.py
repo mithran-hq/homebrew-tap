@@ -16,8 +16,10 @@ class RenderAegisCaskTests(unittest.TestCase):
         self.assertIn('arch arm: "aarch64-apple-darwin", intel: "x86_64-apple-darwin"', cask)
         self.assertIn('sha256 arm:   "1111111111111111111111111111111111111111111111111111111111111111"', cask)
         self.assertIn('intel: "2222222222222222222222222222222222222222222222222222222222222222"', cask)
+        self.assertIn('desc "Controlled coding agent harness derived from Codex"', cask)
         self.assertIn('url "https://github.com/mithran-hq/aegis-code/releases/download/rust-v#{version}/aegis-#{arch}.tar.gz"', cask)
         self.assertIn('binary "aegis-#{arch}", target: "aegis"', cask)
+        self.assertIn('zap trash: "~/.aegis/log"', cask)
 
     def test_rejects_missing_required_arch_checksum(self) -> None:
         with self.assertRaises(SystemExit):

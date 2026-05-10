@@ -1,0 +1,61 @@
+name: Update Aegis cask
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Aegis release version without rust-v"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    name: Update cask
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Download release checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${{ inputs.version }}"
+          curl -fsSLo SHA256SUMS \
+            "https://github.com/mithran-hq/aegis-code/releases/download/rust-v${version}/SHA256SUMS"
+
+      - name: Render cask
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/render_aegis_cask.py \
+            --version "${{ inputs.version }}" \
+            --sha256sums SHA256SUMS \
+            --output Casks/aegis.rb
+
+      - name: Test renderer
+        shell: bash
+        run: python3 -m unittest discover -s tests
+
+      - name: Validate cask
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew style --cask Casks/aegis.rb
+          brew audit --cask Casks/aegis.rb
+
+      - name: Commit cask update
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/aegis.rb
+          if git diff --cached --quiet; then
+            echo "Cask already up to date."
+            exit 0
+          fi
+          git commit -m "Update aegis cask to ${{ inputs.version }}"
+          git push
